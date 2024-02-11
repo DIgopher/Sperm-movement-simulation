@@ -18,6 +18,7 @@ def create_grid(
         grid_step_x: int = 100,
         grid_step_y: int = 100,
         method: str = 'linear',
+        grid_size: int = 1
         ) -> pd.DataFrame:
     
     grid_size = 1
@@ -51,7 +52,7 @@ def re_mesh(file_path):
     df = file_import(file_path)
     df.drop('z', axis = 'columns')
     column_name = list(df.columns)[-1]
-    df_mkm = df * 10e6
+    df_mkm = df * 10e5
     df_mkm[column_name] = df[column_name]
     df_meshed = create_grid(df_mkm['x'], df_mkm['y'], df_mkm[column_name])
     return df_meshed

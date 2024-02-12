@@ -4,11 +4,42 @@ import pandas as pd
 from itertools import product
 from scipy.interpolate import griddata
 
+def txt_to_dict(file_path):
+    """
+    Convert txt file, that was exported from comsol to dictionary with addition description
+    
+    Output: tuple(decription dictionary, dictionary with data, number of dimentions, number of expressions)
+
+    At the moment column names may by wrong, because it split lines by whitespaces
+    """
+    descrp = {}
+    dict = {}
+    with open(file_path) as f:
+        for line in f:
+            row = line.split()
+            #print(row)
+            if row[0]=='%':
+                if row[1] == 'x':
+                    dim = int(descrp['Dimension:'][0])
+                    exp = int(descrp['Expressions:'][0])
+                    descrp['Columns:'] = row[1:]
+                    table = [[] for i in row[1:dim+exp+1]]
+                    #table = {i:[] for i in row[1:dim+exp+1]}
+                else:
+                    descrp[row[1]]=row[2:]
+            else:
+                for i in range(dim+exp):
+                    table[i].append(float(row[i]))
+    for i in range(dim+exp):
+        dict[descrp['Columns:'][i]] = table[i]
+
+    return descrp , dict , dim , exp
 
 
 def file_import(file_path):
     df = pd.read_csv(file_path, sep=';')
     return df
+
 
 #need to add methods for grid formation
 def create_grid(
@@ -18,7 +49,7 @@ def create_grid(
         grid_step_x: int = 100,
         grid_step_y: int = 100,
         method: str = 'linear',
-        grid_size: int = 1
+        grid_size: float = 1
         ) -> pd.DataFrame:
     
     grid_size = 1

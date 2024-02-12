@@ -4,20 +4,21 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from simulation import sim
 
+
 class Sperm:
-    
-    def __init__(self, mesh, coordinates: float = None , angle: float = None):
+
+    def __init__(self, mesh, coordinates: float = None, angle: float = None):
         self.mesh = mesh
         self.angle = angle
         self.start_coordinates = coordinates
-        self.history = {'x': [], 'y': []}
-    
+        self.history: dict = {'x': [], 'y': []}
+
     def __str__(self) -> str:
         return f'Angle = {self.angle}, Coordinates = {self.start_coordinates}'
 
     def up_mesh(self, mesh):
         self.mesh = mesh
-    
+ 
     def rnd_coord_from_mesh(self):
         x = random.randint(self.mesh['x'].min(), self.mesh['x'].max())
         y = random.randint(self.mesh['y'].min(), self.mesh['y'].max())
@@ -77,8 +78,8 @@ class SpermGroup:
         for sperm in self.sperm_list:
             sperm.rnd_angle()
             sperm.rnd_coord_from_mesh()
-            
-        
+
+
     def simulation(self, steps = 10, info  = 0):
         """
         Description:

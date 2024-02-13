@@ -4,7 +4,7 @@ import pandas as pd
 from itertools import product
 from scipy.interpolate import griddata
 
-def txt_to_dict(file_path):
+def txt_to_dict(file_path: str) -> tuple[dict, dict, int, int]:
     """
     Convert txt file, that was exported from comsol to dictionary with addition description
     
@@ -86,4 +86,7 @@ def re_mesh(file_path):
     df_mkm = df * 10e5
     df_mkm[column_name] = df[column_name]
     df_meshed = create_grid(df_mkm['x'], df_mkm['y'], df_mkm[column_name])
-    return df_meshed
+    # delete NaN values from grid
+    not_nan = ~df_meshed[column_name].isnull()
+    df_without_nan = df_meshed.loc[not_nan]
+    return df_without_nan

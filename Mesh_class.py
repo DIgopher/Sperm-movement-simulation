@@ -47,8 +47,12 @@ class MeshGrid:
             self.imported_mesh['x'],
             self.imported_mesh['y'],
             self.imported_mesh[self.aim_column],
-            grid_size = self.distance
+            grid_size=self.distance
             )
+        # delete NaN values from grid
+        not_nan = ~self.mesh[self.aim_column].isnull()
+        df_without_nan = self.mesh.loc[not_nan]
+        self.mesh = df_without_nan
 
     def aim_initial(self):
         self.aim_column = list(self.imported_mesh.columns)[-1]
@@ -62,7 +66,7 @@ class MeshGrid:
 
 
 def process_file(
-        filepath, dis=1, to_dim=True,
+        filepath : str, dis=1, to_dim=True,
         to_mkm=True, re_mesh=True, plot=False
         ) -> MeshGrid:
     """

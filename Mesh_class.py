@@ -1,7 +1,6 @@
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from mesh_import import *
+from mesh_import import create_grid, txt_to_dict
 
 
 class MeshGrid:
@@ -28,11 +27,12 @@ class MeshGrid:
     def __init__(self, mesh, description=None, dim=None, exp=None):
         self.imported_mesh = mesh
         self.mesh = None
-        self.description: dict = description
-        self.dimentions: int = dim
-        self.expressions: int = exp
-        self.distance: float = None
+        self.description = description
+        self.dimentions = dim
+        self.expressions = exp
+        self.distance = None
         self.aim_column = None
+        self.interpolator = None
 
     def to_mkm(self):
         column_name = list(self.imported_mesh.columns)[-1]
@@ -43,7 +43,7 @@ class MeshGrid:
     def re_meshed(self, dis: float = 1.0):
         # column_name = list(self.imported_mesh.columns)[-1]
         self.distance = dis
-        self.mesh = create_grid(
+        self.mesh, self.interpolator = create_grid(
             self.imported_mesh['x'],
             self.imported_mesh['y'],
             self.imported_mesh[self.aim_column],
@@ -56,7 +56,7 @@ class MeshGrid:
 
     def aim_initial(self):
         self.aim_column = list(self.imported_mesh.columns)[-1]
-        #initial_target_name
+        # initial_target_name
 
     def to_2_dim(self):
         self.imported_mesh.drop('z', axis='columns')
@@ -64,9 +64,13 @@ class MeshGrid:
     def plot(self):
         plt.scatter(self.mesh['x'], self.mesh['y'], c=self.mesh.iloc[:, -1])
 
+    def interpolate(self, coord: tuple):
+        shear_rate = self.interpolator(coord)
+        return shear_rate
+
 
 def process_file(
-        filepath : str, dis=1, to_dim=True,
+        filepath: str, dis=1, to_dim=True,
         to_mkm=True, re_mesh=True, plot=False
         ) -> MeshGrid:
     """
@@ -92,8 +96,11 @@ def process_file(
         mesh.plot()
     elif plot == 'start_finish':
         fig, axs = plt.subplots(1, 2, figsize=(12, 6))
-        axs[0].scatter(mesh.imported_mesh['x'],
-                       mesh.imported_mesh['y'], c=mesh.imported_mesh.iloc[:, -1])
+        axs[0].scatter(
+                    mesh.imported_mesh['x'],
+                    mesh.imported_mesh['y'],
+                    c=mesh.imported_mesh.iloc[:, -1]
+                    )
         axs[0].set_title('Before')
         axs[1].scatter(mesh.mesh['x'], mesh.mesh['y'], c=mesh.mesh.iloc[:, -1])
         axs[1].set_title('After')

@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 from lerp import remap
 from Mesh_class import MeshGrid
 
@@ -29,7 +28,11 @@ def find_sr(coord: tuple, mesh: MeshGrid) -> float:
         )
     points_around_amount = (points_around.shape)[0]
 
-    if points_around_amount == 0 or points_around_amount == 1 or points_around_amount == 3:
+    if (
+        points_around_amount == 0 or
+        points_around_amount == 1 or
+        points_around_amount == 3
+    ):
         # print(points_around.shape)
         # print(points_around)
         return None
@@ -48,7 +51,7 @@ def find_sr(coord: tuple, mesh: MeshGrid) -> float:
                 x
                 )
             return shear_rate
-        
+
         if not points_around['y'].min() == points_around['y'].max():
             idx_min = points_around['y'].idxmin()
             idx_max = points_around['y'].idxmax()
@@ -60,6 +63,7 @@ def find_sr(coord: tuple, mesh: MeshGrid) -> float:
                 y
                 )
             return shear_rate
+
     # if DF with 2 rows
 
     # if min and max on y are not equal -> then interpolation only on y
@@ -133,7 +137,7 @@ def movement_step(
 
 # Add or not another function to step?
 def sim(
-        coord: tuple[float, float], angle: float, mesh: MeshGrid, 
+        coord: tuple[float, float], angle: float, mesh: MeshGrid,
         history: dict, steps: int, step_size: int = 10,
         noise_power: float = 5, noise: bool = True
         ) -> dict:
@@ -141,7 +145,7 @@ def sim(
     history['y'].append(coord[1])
     par_a = 0.07
     for step in range(steps):
-        shear_rate = find_sr(coord, mesh)
+        shear_rate = mesh.interpolate(coord)
         if shear_rate is None:
             print(f'Simulation stopped on step {step}')
             print(coord)
